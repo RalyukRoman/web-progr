@@ -1,0 +1,155 @@
+{
+  "info": {
+    "_postman_id": "b7c77042-2662-4faf-97ba-9d43f74345bb",
+    "name": "ЛР 10 — Самостійна робота",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52669275",
+    "_collection_link": "https://go.postman.co/collection/52669275-b7c77042-2662-4faf-97ba-9d43f74345bb?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Пошук за підрядком",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 200 OK\", () => pm.response.to.have.status(200));\r\npm.test(\"Знайдено записи незалежно від регістру\", () => {\r\n    const json = pm.response.json();\r\n    pm.expect(json.data.length).to.be.above(0);\r\n    pm.expect(json.data[0].title.toLowerCase()).to.include(\"тест\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}?resource=tasks&q=ТЕСТ",
+          "host": [
+            "{{base_url}}"
+          ],
+          "query": [
+            {
+              "key": "resource",
+              "value": "tasks"
+            },
+            {
+              "key": "q",
+              "value": "ТЕСТ"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Пошук без збігів",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 200 OK\", () => pm.response.to.have.status(200));\r\npm.test(\"Порожній список у результаті\", () => {\r\n    const json = pm.response.json();\r\n    pm.expect(json.data).to.be.an('array').that.is.empty;\r\n    pm.expect(json.meta.count).to.equal(0);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}?resource=tasks&q=НеіснуючийТекст123",
+          "host": [
+            "{{base_url}}"
+          ],
+          "query": [
+            {
+              "key": "resource",
+              "value": "tasks"
+            },
+            {
+              "key": "q",
+              "value": "НеіснуючийТекст123"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Поєднання q та done",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 200 OK\", () => pm.response.to.have.status(200));\r\npm.test(\"Запис відповідає двом фільтрам\", () => {\r\n    const json = pm.response.json();\r\n    json.data.forEach(task => {\r\n        pm.expect(task.done).to.be.true;\r\n        pm.expect(task.title.toLowerCase()).to.include(\"підготувати\");\r\n    });\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}?resource=tasks&q=підготувати&done=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "query": [
+            {
+              "key": "resource",
+              "value": "tasks"
+            },
+            {
+              "key": "q",
+              "value": "підготувати"
+            },
+            {
+              "key": "done",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Помилка: масив q[] замість рядка",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Статус 400 Bad Request\", () => pm.response.to.have.status(400));\r\npm.test(\"Присутнє повідомлення про помилку\", () => {\r\n    const json = pm.response.json();\r\n    pm.expect(json).to.have.property(\"error\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}?resource=tasks&q[]=ТЕСТ",
+          "host": [
+            "{{base_url}}"
+          ],
+          "query": [
+            {
+              "key": "resource",
+              "value": "tasks"
+            },
+            {
+              "key": "q[]",
+              "value": "ТЕСТ"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
